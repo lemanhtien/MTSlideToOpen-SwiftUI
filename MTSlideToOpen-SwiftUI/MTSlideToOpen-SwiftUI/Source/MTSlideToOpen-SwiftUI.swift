@@ -104,6 +104,7 @@ struct MTSlideToOpen: View {
                 ZStack(alignment: .leading, content: {
                     HStack {
                         Text(self.text)
+                        .font(textFont)
                         .frame(maxWidth: .infinity)
                         .padding([.leading], textLabelLeadingPadding)
                         .foregroundColor(self.textColor)
