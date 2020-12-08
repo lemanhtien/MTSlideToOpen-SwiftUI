@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct MTSlideToOpen: View {
-    
+
     // Public Property
     var sliderTopBottomPadding: CGFloat = 0
     var thumbnailTopBottomPadding: CGFloat = 0
@@ -24,63 +24,63 @@ struct MTSlideToOpen: View {
     var resetAnimation: Animation = .easeIn(duration: 0.3)
     var iconName = "ic_arrow"
     var didReachEndAction: ((MTSlideToOpen) -> Void)?
-    
+
     // Private Property
     @State private var draggableState: DraggableState = .ready
-    
+
     private enum DraggableState {
         case ready
         case dragging(offsetX: CGFloat, maxX: CGFloat)
         case end(offsetX: CGFloat)
-        
+
         var reachEnd: Bool {
             switch self {
-            case .ready, .dragging(_):
+            case .ready, .dragging(_, _):
                 return false
             case .end(_):
                 return true
             }
         }
-        
+
         var isReady: Bool {
             switch self {
-            case .dragging(_), .end(_):
+            case .dragging(_, _), .end(_):
                 return false
             case .ready:
                 return true
             }
         }
-        
+
         var offsetX: CGFloat {
               switch self {
               case .ready:
                 return 0.0
-              case .dragging(let (offsetX,_)):
+              case .dragging(let offsetX, _):
                   return offsetX
               case .end(let offsetX):
                   return offsetX
               }
           }
-        
+
         var textColorOpacity: Double {
             switch self {
             case .ready:
                 return 1.0
-            case.dragging(let (offsetX,maxX)):
+            case.dragging(let offsetX,let maxX):
                 return 1.0 - Double(offsetX / maxX)
             case .end(_):
                 return 0.0
             }
         }
-        
+
     }
-    
+
     var body: some View {
         return GeometryReader { geometry in
             self.setupView(geometry: geometry)
         }
     }
-    
+
     private func setupView(geometry: GeometryProxy) -> some View {
         let frame = geometry.frame(in: .global)
         let width = frame.size.width
@@ -104,18 +104,19 @@ struct MTSlideToOpen: View {
                 ZStack(alignment: .leading, content: {
                     HStack {
                         Text(self.text)
+                        .font(textFont)
                         .frame(maxWidth: .infinity)
                         .padding([.leading], textLabelLeadingPadding)
                         .foregroundColor(self.textColor)
                         .opacity(self.draggableState.textColorOpacity)
                         .animation(self.draggableState.isReady ? self.resetAnimation : nil)
-                        
+
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(self.sliderBackgroundColor)
                     .cornerRadius(sliderCornerRadius)
                     .padding([.top, .bottom], self.sliderTopBottomPadding)
-                    
+
                     Image(iconName)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .aspectRatio(1.0, contentMode: .fit)
@@ -132,21 +133,20 @@ struct MTSlideToOpen: View {
                 }
                 .background(Color.white)
     }
-    
+
     private func onDragEnded(drag: DragGesture.Value) {
         switch draggableState {
-        case .end(_), .dragging(_):
+        case .end(_), .dragging(_, _):
             draggableState = .ready
             break
         case .ready:
             break
         }
     }
-    
+
     // MARK: Public Function
-    
+
     func resetState(_ animated: Bool = true) {
         self.draggableState = .ready
     }
 }
-
